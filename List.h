@@ -15,67 +15,56 @@
 
 ----------------------------------------------------------------------------------------------------------*/
 
-#ifndef List_h
-#define List_h
+#ifndef list_h
+#define list_h
 
 #include <iostream>
 #include <fstream>
 
-
 using namespace std;
-
 
 template <typename T>
 class List {
 
-	// output operator for class List, print data,
-	// responsibility for output is left to object stored in the list
 	friend ostream& operator<<(ostream& output, const List<T>& thelist) {
 		typename List<T>::Node* current = thelist.head;
-		while (current != NULL) {
+		while (current != nullptr) {
 			output << *current->data;
 			current = current->next;
 		}
 		return output;
 	}
 
-
-
-
 	public:
-	List();                           		// default constructor
-	~List();                       			// destructor
-	List(const List&);						// copy constructor
-	bool insert(T*);                  		// insert one Node into list
-	bool isEmpty() const;             		// is list empty?
-	void buildList(ifstream&);        		// build a list from datafile
-	bool retrieve(T* target, T& retrieved);	//retrieves a node from the list, sets it equal to the second parameter
-	bool remove(T* target, T& removed);		//removes a node from the list
-	void makeEmpty();						//deallocates memory for all nodes and sets head to NULL
-	int size() const;						//returns size of the list
-	void intersect(List<T>& listOne, List<T>& listTwo);	//sets calling object to the commone elements of the two parameters
-	void merge(List<T>& toMerge, List<T>& toMergeTwo);	//takes two parameters and sets calling object equal to the two lists combines
 
+	List(void);
+	~List(void);
+	List(const List&);
+	bool insert(T* toInsert);
+	bool isEmpty(void) const;
+	void buildList(ifstream& inFile);
+	bool retrieve(T* target, T& retrieved);
+	bool remove(T* target, T& removed);
+	void makeEmpty(void);
+	int size(void) const;
+	void intersect(List<T>& listOne, List<T>& listTwo);
+	void merge(List<T>& toMerge, List<T>& toMergeTwo);
 
 	bool operator!=(const List<T>& toCompare) const;
 	bool operator==(const List<T>& toCompare) const;
-	List<T>& operator=(const List<T>& toCopy);			// needs many more member functions to become a complete ADT
+	List<T>& operator=(const List<T>& toCopy);
 
 
 
 
 	private:
 
-	//struct for storing the nodes in the list. Each node has a
-	//pointer to a data object and a pointer to the next node in the list
-
 	struct Node {       
 		T* data;          
 		Node* next;
 	};
 	
-	//pointer to the first Node in the list
-	Node* head;
+	Node* head;		//pointer to the first item in the linked list
 };
 
 /*-------------------------------------------------------------------------------------------------
@@ -97,50 +86,49 @@ List<T>::List(const List<T>& toCopy) {
 
 /*-------------------------------------------------------------------------------------------------
 
-	Default no-args constructor. Creates a List object and sets head = NULL
+	Default no-args constructor. Creates a List object and sets head = nullptr
 
 	POSTCONDITIONS:
 		- instantiates a new List object
-		- sets head to NULL
+		- sets head to nullptr
 
 -------------------------------------------------------------------------------------------------*/
 
 template <typename T>
-List<T>::List() {
-	//sets head to NULL
-	head = NULL;
+List<T>::List(void) {
+	head = nullptr;
 };
 
 /*-------------------------------------------------------------------------------------------------
 
 	Deconstructor. Uses makeEmpty as a helper function to delete all Nodes in the list and
-	set their pointers equal to NULL
+	set their pointers equal to nullptr
 
 	POSTCONDITIONS:
-		- deletes all nodes in a list and sets head equal to NULL
+		- deletes all nodes in a list and sets head equal to nullptr
 
 -------------------------------------------------------------------------------------------------*/
 
 template<typename T>
-List<T>::~List() {
-	this->makeEmpty();	//calls makeEmpty to delete all the nodes in the list
-	delete head;		//deletes head
-	head = NULL;		//sets head equal to NULL
+List<T>::~List(void) {
+	this->makeEmpty();
+	delete head;
+	head = nullptr;	
 };
 
 /*-------------------------------------------------------------------------------------------------
 
-	Returns if the head of the calling object is equal to NULL. If head is NULL then the 
+	Returns if the head of the calling object is equal to nullptr. If head is nullptr then the 
 	List is empty.
 
 	POSTCONDITIONS:
-		- returns true if head is NULL, false otherwise
+		- returns true if head is nullptr, false otherwise
 
 -------------------------------------------------------------------------------------------------*/
 
 template <typename T>
 bool List<T>::isEmpty() const {
-	return head == NULL;	//returns true if head is NULL, false otherwise
+	return head == nullptr;
 }
 
 /*-------------------------------------------------------------------------------------------------
@@ -150,7 +138,7 @@ bool List<T>::isEmpty() const {
 	the second parameter is unchanged.
 
 	PRECONDITIONS:
-		- target should not be NULL
+		- target should not be nullptr
 
 	POSTCONDITIONS:
 		- removes a Node from the list. Sets the second argument equal to the removed
@@ -160,7 +148,7 @@ bool List<T>::isEmpty() const {
 
 template<typename T>
 bool List<T>::remove(T* target, T& removed) {
-	bool ableToRemove;	//bool object
+	bool ableToRemove;
 
 	//checks to make sure that head is not equal to NULL
 	//and that target is not equal to NULL
@@ -174,15 +162,17 @@ bool List<T>::remove(T* target, T& removed) {
 	}
 
 	if (ableToRemove) {
-		Node* previous = head;	//Node to track previous Node
-		Node* current = head;	//Node to track current Node
+		Node* previous = head;		//Node to track previous Node
+		Node* current = head;		//Node to track current Node
 
 		while (current != NULL) {
 
 			//checks to see if target is equal to the current Node
 			if (*target == *current->data) {
+
 				//checks to see if the target is equal to the current
 				//node, and if this node is equal to head (special remove case)
+				
 				if (*target == *head->data) {
 					//increments the current node
 					current = current->next;
@@ -191,14 +181,19 @@ bool List<T>::remove(T* target, T& removed) {
 					//increments head to the next node, effectively removing the 
 					//node from the list
 					head->next = current->next;
+				
 				} else {
+					
 					//sets second parameter equal to the removed object
 					removed = *current->data;
+					
 					//sets previous nodes pointer to the node after the
 					//one that target is equal to.
 					previous->next = current->next;
+					
 					//deletes the current node
 					delete current;
+					
 					//sets the current pointer equal to NULL
 					current = NULL;
 				}
@@ -240,7 +235,7 @@ bool List<T>::operator!=(const List<T>& toCompare) const {
 	the second parameter is unchanged.
 
 	PRECONDITIONS:
-		- target should not be NULL
+		- target should not be nullptr
 
 	POSTCONDITIONS:
 		- retrieves an object from the list. Sets the second argument equal to this
@@ -250,13 +245,13 @@ bool List<T>::operator!=(const List<T>& toCompare) const {
 
 template<typename T>
 bool List<T>::retrieve(T* target, T& retrieved) {
-	bool ableToRetrieve;	//creates bool object
+	bool ableToRetrieve;
 
 	//checks to see if head or the target object are
-	//equal to NULL, if so sets ableToRetrieve indicating
+	//equal to nullptr, if so sets ableToRetrieve indicating
 	//that we are not able to retrieve from the list either
 	//because the list is empty or the target is not a valid value
-	if (head == NULL || target == NULL) {
+	if (head == nullptr || target == nullptr) {
 		ableToRetrieve = false;
 	} else {
 		ableToRetrieve = true;
@@ -266,7 +261,7 @@ bool List<T>::retrieve(T* target, T& retrieved) {
 		Node* previous = head;	//node equal to previous node in the list
 		Node* current = head;	//node equal to the current node in the list
 
-		while (current != NULL) {
+		while (current != nullptr) {
 			//checks to see if target is equal to the current node in the list
 			if (*target == *current->data) {
 				//checks to see if this node is the head node
@@ -297,7 +292,7 @@ bool List<T>::retrieve(T* target, T& retrieved) {
 	Inserts the parameter into the appropriate spot in the linked list.
 
 	PRECONDITIONS:
-		- parameter cannot be NULL
+		- parameter cannot be nullptr
 
 	POSTCONDITIONS:
 		- iterates through the list and finds the appropriate sorted spot for the node.
@@ -311,18 +306,18 @@ bool List<T>::insert(T* dataptr) {
 	//checks to see if the computer is out of memory
 	//if so returns false
 	Node* ptr = new Node;
-	if (ptr == NULL) {
+	if (ptr == nullptr) {
 		return false;
 	}
 	//checks to see if the pointer to the object to insert
-	//is set to NULL, if so, returns false
-	if (dataptr == NULL) {
+	//is set to nullptr, if so, returns false
+	if (dataptr == nullptr) {
 		return false;
 	}
 
 	ptr->data = dataptr;	//sets ptr equal to the parameter
 
-	//checks to see if the list is empty (head == NULL) or if the 
+	//checks to see if the list is empty (head == nullptr) or if the 
 	//object to insert is less than head, if so inserts the object at
 	//the beginning of the list
 	if (isEmpty() || *ptr->data < *head->data) {
@@ -336,7 +331,7 @@ bool List<T>::insert(T* dataptr) {
 
 		//iterates over the list until we find a spot where the new object it less than or
 		//equal to the current node, or if we reach the end of the list
-		while (current != NULL && *current->data < *ptr->data) {
+		while (current != nullptr && *current->data < *ptr->data) {
 			previous = current;              	//increases the node
 			current = current->next;			//increases the node
 		}
@@ -356,25 +351,20 @@ bool List<T>::insert(T* dataptr) {
 	Returns an int value equal to the number of nodes in the list
 
 	POSTCONDITIONS:
-	- returns an int value equal to the number of nodes in the list
+		- returns an int value equal to the number of nodes in the list
 
 -------------------------------------------------------------------------------------------------*/
 
 template<typename T>
-int List<T>::size() const {
-	//instantiates node pointer to iterator over the list. sets it equal to the head
-	//of the calling object
-	Node* currentPtr = this->head;
-	//creates retVal = 0. will return 0 if the list is empty.
-	int retVal = 1;
-	//iterates over list while current is not equal to NULL
-	while (currentPtr != NULL) {
-		//increments node
+int List<T>::size(void) const {
+	Node* currentPtr = this->head;		//pointer to traverse linked list
+
+	int retVal = 0;
+	while (currentPtr != nullptr) {		//iterates over linked list, increases count by one
 		currentPtr = currentPtr->next;
-		//increments retVal
 		retVal++;
 	}
-	//returns retVal
+	//retu
 	return retVal;
 };
 
@@ -405,7 +395,7 @@ bool List<T>::operator==(const List<T>& toCompare) const {
 	else {
 		Node* thisPtr = this->head;
 		Node* thatPtr = toCompare.head;
-		while (thisPtr != NULL) {
+		while (thisPtr != nullptr) {
 			if (*thisPtr->data != *thatPtr->data) {
 				return false;
 			}
@@ -418,7 +408,7 @@ bool List<T>::operator==(const List<T>& toCompare) const {
 
 /*-------------------------------------------------------------------------------------------------
 
-	Function iterates over a list and deallocates memory for each node. Sets head to null;
+	Method iterates over a list and deallocates memory for each node. Sets head to nullptr.
 
 	POSTCONDITIONS:
 		- deallocates all memory in the nodes of a linked list
@@ -426,31 +416,22 @@ bool List<T>::operator==(const List<T>& toCompare) const {
 -------------------------------------------------------------------------------------------------*/
 
 template<typename T>
-void List<T>::makeEmpty() {
-	//checks to see if head is equal to null, if so we do not need to empty the list
-	//exits the function
-	if (head == NULL) {
+void List<T>::makeEmpty(void) {
+	if (head == nullptr) {		//checks if the list is already empty
 		return;
-	} else {
-		Node* previous = head;			//node to track the previous node in the list
-		Node* current = head->next;		//node to track the current node in the list
+	} else {					//iterates over list and deletes every Node
+		Node* previous = head;
+		Node* current = head->next;
 
-		//iterates over the list while current is not equal to null
-		while (current != NULL) {
-			//delete previous->data (deallocates memory)
+		while (current != nullptr) {
 			delete previous;
-			//sets previous to current
 			previous = current;
-			//sets current to the next node in the list
 			current = current->next;
 		}
 
-		//delete previous->data;
 		delete previous;
-		//deletes current's data
 		delete current;
-		//sets head to NULL
-		head = NULL;
+		head = nullptr;
 	}
 };
 
@@ -467,36 +448,34 @@ void List<T>::makeEmpty() {
 
 template<typename T>
 void List<T>::intersect(List<T>& listOne, List<T>& listTwo) {
-	//checks to see if the calling object is equal to both of the
-	//parameters, if so we return 
+	//checks to see if lists are equal
 	if (*this == listOne && *this == listTwo) {
 		return;
 	}
-	List<T> intersection;			//list to store the intersecting values
 
-	Node* currentPtr = listOne.head;		//node to track our progress in the list
+	List<T> intersection;				//list to store the intersecting values
 
-	T retrieved;		//object to set to retrieved value
+	Node* currentPtr = listOne.head;	//node to track our progress in the list
 
-	while (currentPtr != NULL) {
+	T retrieved;
+
+	while (currentPtr != nullptr) {
 		//checks to see if the value found in listOne is also found in listTwo
 		if (listTwo.retrieve(currentPtr->data, retrieved) == true) {
+			
 			//checks to see if the value is already in the intersection list
-			//if not we insert it in to the list
+			//if not, inserts value
 			if (intersection.retrieve(currentPtr->data, retrieved) == false) {
-				//adds the datapoint to the intersection list
+				//adds the Node to the intersection list
 				intersection.insert(currentPtr->data);
 			}
 		}
-		//increments the node that is iterating over the list
 		currentPtr = currentPtr->next;
-
 	}
+
 	//makes the calling object empty
 	this->makeEmpty();
 
-	//sets the current object equal to the head of intersection
-	//and the head of intersection equal to NULL
 	head = intersection.head;
 	intersection.head = NULL;
 
@@ -505,7 +484,7 @@ void List<T>::intersect(List<T>& listOne, List<T>& listTwo) {
 /*-------------------------------------------------------------------------------------------------
 
 	Merges two lists together (in order) and sets the calling object to this sorted list.
-	No new memory is allocated, rather pointers are just rearranged.
+	No new memory is allocated, rather pointers are just rearranged. Merge is performed in O(n).
 
 	PRECONDITIONS:
 		- both parameters cannot be equal to the calling object
@@ -521,8 +500,7 @@ void List<T>::merge(List<T>& listOne, List<T>& listTwo) {
 	//parameters, if so bails.
 	if (*this == listOne && *this == listTwo) {
 		return;
-	//else makes the calling object empty, so that we do not
-	//leak memory
+
 	} else if (*this != listOne && *this != listTwo) {
 		makeEmpty();
 	}
@@ -532,71 +510,48 @@ void List<T>::merge(List<T>& listOne, List<T>& listTwo) {
 	Node* listTwoPtr = listTwo.head;		//pointer to the head of listTwo
 
 	Node* newListHead;						//static pointer to the head of what will be the new list
-	Node* current;							//node as the current iterator
+	Node* current;							//node to traverse
 
-	//checks to see if the node from list one is less than
-	//the node data from list two
+	//sets head of newListHead to the smallest head
+	//between listOne and listTwo
 	if (*listOnePtr->data < *listTwoPtr->data) {
-		//if the listOne node is the least than we set the current
-		//node equal to this (next in the ordered list)
 		current = listOne.head;
-		//sets the head of the new list equal to current
 		newListHead = current;
-		//increments the listOne pointer since we have already
-		//included it in the newly ordered list
 		listOnePtr = listOnePtr->next;
-	//else we know that the node data from lsitTwoPtr is less than
-	//or equal to the listOnePtr
+	
 	} else {
-		//sets the current node to listTwo's head
 		current = listTwo.head;
-		//sets the newListHead equal to current
 		newListHead = current;
-		//increments the listTwoPtr to the next node in the list
 		listTwoPtr = listTwoPtr->next;
 	}
 
 	//while loop iterates over listOne and listTwo, while both
-	//of them still have data
-	while (listOnePtr != NULL && listTwoPtr != NULL) {
-		//if the data that listOne is pointing two
-		//is less than the data that listTwo is pointing to
+	//of them still have data and merges them
+	while (listOnePtr != nullptr && listTwoPtr != nullptr) {
 		if (*listOnePtr->data < *listTwoPtr->data) {
-			//we set the next node from current equal to
-			//the listOnePtr
 			current->next = listOnePtr;
-			//increment the listOnePtr
 			listOnePtr = listOnePtr->next;
-			//increments the current node ptr
 			current = current->next;
 		} else {
-			//else we know that the listTwoPointer is less than
-			//or equal to listOnePtr
-			//set current's next node to listTwoPtr
 			current->next = listTwoPtr;
-			//increments the listTwoPointer
 			listTwoPtr = listTwoPtr->next;
-			//increments the current pointer
 			current = current->next;
 		}
 	}
 
-	//checks to see if the listTwoPtr still has more nodes
-	//if so we append this to the current->next list
-	if (listOnePtr == NULL && listTwoPtr != NULL) {
+	//adds any still remaining data to the end of the new list
+	if (listOnePtr == nullptr && listTwoPtr != nullptr) {
 		current->next = listTwoPtr;
 		current = current->next;
-	//otherwise we check to see if listOnePtr still has information
-	//if so we append this to the end of our newly ordered list
-	} else if (listOnePtr != NULL && listTwoPtr == NULL) {
+	} else if (listOnePtr != nullptr && listTwoPtr == nullptr) {
 		current->next = listOnePtr;
 		current = current->next;
 	}
 	//set head of the calling object equal to our newly ordered lsit
 	head = newListHead;
-	//set both heads of our parameters equal to NULL to avoid memory leaks
-    listOne.head = NULL;
-	listTwo.head = NULL;
+	//set both heads of our parameters equal to nullptr to avoid memory leaks
+    listOne.head = nullptr;
+	listTwo.head = nullptr;
 };
 
 /*-------------------------------------------------------------------------------------------------
@@ -611,25 +566,18 @@ void List<T>::merge(List<T>& listOne, List<T>& listTwo) {
 
 template<typename T>
 List<T>& List<T>::operator=(const List<T>& toCopy) {
-	//checks if the calling object is equal to 
-	//the parameter. If so we cannot make a deep
-	//copy and then set it equal to itself.
 	if (*this == toCopy) {
-		//return the calling object
 		return *this;
 	} else {
-		//checks if head is not equal to NULL
-		//if so, clears the list
-		if (head != NULL) {
+		if (head != nullptr) {
 			makeEmpty();
 		}
-		Node* currentPtr = toCopy.head;		//current pointer equal to the head of parameter
-		while (currentPtr != NULL) {
-			this->insert(currentPtr->data);		//calls insert to create a deep copy of the node
-			currentPtr = currentPtr->next;		//increments the iterator node
+		Node* currentPtr = toCopy.head;
+		while (currentPtr != nullptr) {
+			this->insert(currentPtr->data);
+			currentPtr = currentPtr->next;
 		}
 	}
-	//return this
 	return *this;
 }
 
@@ -642,6 +590,7 @@ List<T>& List<T>::operator=(const List<T>& toCopy) {
 		- builds an ordered list from a file
 
 -------------------------------------------------------------------------------------------------*/
+
 template <typename T>
 void List<T>::buildList(ifstream& infile) {
 	T* ptr;
@@ -655,7 +604,7 @@ void List<T>::buildList(ifstream& infile) {
 			break;
 		}
 
-		// insert good data into the list, otherwise ignore it
+		//insert good data into the list, otherwise ignore it
 		if (successfulRead) {
 			success = insert(ptr);
 		} else {
